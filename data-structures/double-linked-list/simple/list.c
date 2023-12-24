@@ -34,10 +34,52 @@ Node* insert(List* plist, const Item item) {
   strcpy(p_node->item, item);
   p_node->item[len] = '\0';
   // rearrange pointers
-  p_node->prev = NULL;
   p_node->next = plist->head;
+  if (plist->head != NULL)
+    plist->head->prev = p_node;
+  p_node->prev = NULL;
   plist->head = p_node;
   return p_node;
+}
+
+Node* find(const List* plist, const Item item) {
+  Node* ptr = plist->head;
+  while (ptr != NULL) {
+    if (strlen(ptr->item) == strlen(item) 
+        && strcmp(ptr->item, item) == 0)
+      return ptr;
+    ptr = ptr->next;
+  }
+  return NULL;
+}
+
+bool delete_item(List* plist, const Item item) {
+  Node* ptr;
+  if (!(ptr = find(plist, item)))
+    return false;
+  --plist->items;
+  if (ptr->prev != NULL)
+    ptr->prev->next = ptr->next;
+  else
+    plist->head = ptr->next;
+  if (ptr->next != NULL)
+    ptr->next->prev = ptr->prev;
+  free(ptr->item);
+  free(ptr);
+  return true;
+}
+
+bool pop(List* plist, Item item) {
+  if (plist->head == NULL)
+    return false;
+  --plist->items;
+  Node* ptr = plist->head;
+  if (ptr->next != NULL)
+    ptr->next->prev = NULL;
+  plist->head = ptr->next;
+  strncpy(item, ptr->item, SSIZE);
+  item[SSIZE - 1] = '\0';
+  return true;
 }
 
 void empty_the_list(List* plist) {
@@ -58,20 +100,3 @@ void traverse(const List* plist, void (*pf)(Item item)) {
     ptr = ptr->next;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
